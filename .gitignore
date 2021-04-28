@@ -1,3 +1,5 @@
+**/secret_constants.dart
+
 # Miscellaneous
 *.class
 *.log
