@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'secret_constants.dart';
 import 'package:http/http.dart' as http;
+import 'api_key.dart';
 
 class Networking {
   Future<double> getExchangeRate(String selectedCurrency) async {
