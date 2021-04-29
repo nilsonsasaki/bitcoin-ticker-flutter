@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'coin_data.dart';
 import 'dart:io' show Platform;
+import 'networking.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -10,6 +11,26 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectCurrency = 'USD';
+  String rate;
+
+  Future<void> getNewRate(String currency) async {
+    selectCurrency = currency;
+    var temp = await Networking().getExchangeRate(selectCurrency);
+    rate = temp.toStringAsFixed(3);
+    return;
+  }
+
+  Text trackerText() {
+    getNewRate(selectCurrency);
+    return Text(
+      '1 BTC = $rate $selectCurrency',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 20.0,
+        color: Colors.white,
+      ),
+    );
+  }
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItens = [];
@@ -25,7 +46,7 @@ class _PriceScreenState extends State<PriceScreen> {
       items: dropdownItens,
       onChanged: (value) {
         setState(() {
-          selectCurrency = value;
+          getNewRate(value);
         });
         print(value);
       },
@@ -42,6 +63,7 @@ class _PriceScreenState extends State<PriceScreen> {
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
         print(selectedIndex);
+        getNewRate(currenciesList[selectedIndex]);
       },
       children: pickerList,
     );
@@ -67,14 +89,7 @@ class _PriceScreenState extends State<PriceScreen> {
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = ? USD',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
+                child: trackerText(),
               ),
             ),
           ),
