@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'api_key.dart';
+
 const List<String> currenciesList = [
   'AUD',
   'BRL',
@@ -28,4 +32,17 @@ const List<String> cryptoList = [
   'LTC',
 ];
 
-class CoinData {}
+class CoinData {
+  Future<String> getExchangeRate(String selectedCurrency) async {
+    var apiUrl = Uri.parse(
+        'https://rest.coinapi.io/v1/exchangerate/BTC/$selectedCurrency?apikey=$apiKey');
+    http.Response response = await http.get(apiUrl);
+    if (response.statusCode == 200) {
+      var jsonReceived = jsonDecode(response.body);
+      double rateReceived = jsonReceived['src_side_base'][0]['rate'];
+      return (rateReceived.toStringAsFixed(3));
+    } else {
+      return ('Error code = ${response.statusCode}');
+    }
+  }
+}

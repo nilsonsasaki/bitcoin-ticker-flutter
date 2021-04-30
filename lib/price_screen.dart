@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'coin_data.dart';
 import 'dart:io' show Platform;
-import 'networking.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -11,17 +10,17 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectCurrency = 'USD';
-  String rate;
+  String rate = '?';
 
   Future<void> getNewRate(String currency) async {
     selectCurrency = currency;
-    var temp = await Networking().getExchangeRate(selectCurrency);
-    rate = temp.toStringAsFixed(3);
-    return;
+    rate = await CoinData().getExchangeRate(currency);
+    setState(() {
+      print(rate);
+    });
   }
 
   Text trackerText() {
-    getNewRate(selectCurrency);
     return Text(
       '1 BTC = $rate $selectCurrency',
       textAlign: TextAlign.center,
@@ -67,6 +66,12 @@ class _PriceScreenState extends State<PriceScreen> {
       },
       children: pickerList,
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getNewRate(selectCurrency);
   }
 
   @override
