@@ -10,19 +10,48 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectCurrency = 'USD';
-  String rate = '?';
+  List<String> rates = [];
 
-  Future<void> getNewRate(String currency) async {
+  Future<void> getNewRates(String currency) async {
     selectCurrency = currency;
-    rate = await CoinData().getExchangeRate(currency);
+    for (int i = 0; i < cryptoList.length; i++) {
+      rates.add('?');
+    }
+    for (int i = 0; i < cryptoList.length; i++) {
+      rates[i] = await CoinData().getExchangeRate(cryptoList[i], currency);
+    }
+
     setState(() {
-      print(rate);
+      print(rates);
     });
   }
 
-  Text trackerText() {
+  List<Widget> trackerDisplayBuilder() {
+    List<Widget> trackerList = [];
+    for (int i = 0; i < cryptoList.length; i++) {
+      trackerList.add(
+        Padding(
+          padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
+          child: Card(
+            color: Colors.lightBlueAccent,
+            elevation: 5.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+              child: trackerText(cryptoList[i], rates[i]),
+            ),
+          ),
+        ),
+      );
+    }
+    return (trackerList);
+  }
+
+  Text trackerText(String cryptoCurrency, String rate) {
     return Text(
-      '1 BTC = $rate $selectCurrency',
+      '1 $cryptoCurrency = $rate $selectCurrency',
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 20.0,
@@ -45,7 +74,7 @@ class _PriceScreenState extends State<PriceScreen> {
       items: dropdownItens,
       onChanged: (value) {
         setState(() {
-          getNewRate(value);
+          getNewRates(value);
         });
         print(value);
       },
@@ -62,7 +91,7 @@ class _PriceScreenState extends State<PriceScreen> {
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
         print(selectedIndex);
-        getNewRate(currenciesList[selectedIndex]);
+        getNewRates(currenciesList[selectedIndex]);
       },
       children: pickerList,
     );
@@ -71,7 +100,7 @@ class _PriceScreenState extends State<PriceScreen> {
   @override
   void initState() {
     super.initState();
-    getNewRate(selectCurrency);
+    getNewRates(selectCurrency);
   }
 
   @override
@@ -82,21 +111,10 @@ class _PriceScreenState extends State<PriceScreen> {
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: trackerText(),
-              ),
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: trackerDisplayBuilder(),
           ),
           Container(
             height: 150.0,
